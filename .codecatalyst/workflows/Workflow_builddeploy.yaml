@@ -1,0 +1,102 @@
+Name: Workflow_6ee1
+SchemaVersion: "1.0"
+
+# Trigger only when started manually.
+Triggers:
+  - Type: Manual
+    # (Optional) Add a parameter for environment selection.
+    Parameters:
+      - Name: environment
+        Description: "Select the environment to deploy to"
+        Type: String
+        Default: QA
+        AllowedValues:
+          - QA
+          - Dev
+
+Actions:
+  Build_and_Deploy:
+    Identifier: aws/build@v1.0.0
+    Inputs:
+      Sources:
+        - WorkflowSource
+      # You can still define static variables if you want:
+      Variables:
+        - Name: AWS_ACCOUNT_ID
+          Value: "677276078734"
+        - Name: AWS_REGION
+          Value: "us-east-1"
+        - Name: DOCKER_REPO
+          Value: "677276078734.dkr.ecr.us-east-1.amazonaws.com"
+
+        # Dev environment variables
+        - Name: DEV_ENV_NAME
+          Value: "paimon"
+        - Name: DEV_APP_RUNNER_URL
+          Value: "https://6q8a6emu8q.us-east-1.awsapprunner.com"
+        - Name: DEV_USERNAME
+          Value: "admin"
+        - Name: DEV_PASSWORD
+          Value: "usidhfIYG6*(43HBJ"
+
+        # QA environment variables
+        - Name: QA_ENV_NAME
+          Value: "iamdqa"
+        - Name: QA_APP_RUNNER_URL
+          Value: "https://tmmqcidccg.us-east-1.awsapprunner.com"
+        - Name: QA_USERNAME
+          Value: "admin"
+        - Name: QA_PASSWORD
+          Value: "jkhrg&*ObliubUH*(8"
+
+    Outputs:
+      AutoDiscoverReports:
+        Enabled: true
+        ReportNamePrefix: rpt
+
+    Configuration:
+      Steps:
+        - Run: |
+            # 1) Log in to ECR
+            aws ecr get-login-password --region $AWS_REGION \
+              | docker login --username AWS \
+              --password-stdin $DOCKER_REPO
+
+            echo "Selected environment: $environment"
+
+            # 2) Conditionally build & push based on the 'environment' parameter.
+            if [ "$environment" = "QA" ]; then
+              echo "Deploying to QA environment ($QA_ENV_NAME)..."
+              docker build -t $DOCKER_REPO/flotorch-app-$QA_ENV_NAME:latest \
+                           -f app/Dockerfile --push .
+              docker build -t $DOCKER_REPO/flotorch-indexing-$QA_ENV_NAME:latest \
+                           -f indexing/fargate_indexing.Dockerfile --push .
+              docker build -t $DOCKER_REPO/flotorch-retriever-$QA_ENV_NAME:latest \
+                           -f retriever/fargate_retriever.Dockerfile --push .
+              docker build -t $DOCKER_REPO/flotorch-evaluation-$QA_ENV_NAME:latest \
+                           -f evaluation/fargate_evaluation.Dockerfile --push .
+              docker build -t $DOCKER_REPO/flotorch-runtime-$QA_ENV_NAME:latest \
+                           -f opensearch/opensearch.Dockerfile --push .
+
+            elif [ "$environment" = "Dev" ]; then
+              echo "Deploying to Dev environment ($DEV_ENV_NAME)..."
+              docker build -t $DOCKER_REPO/flotorch-app-$DEV_ENV_NAME:latest \
+                           -f app/Dockerfile --push .
+              docker build -t $DOCKER_REPO/flotorch-indexing-$DEV_ENV_NAME:latest \
+                           -f indexing/fargate_indexing.Dockerfile --push .
+              docker build -t $DOCKER_REPO/flotorch-retriever-$DEV_ENV_NAME:latest \
+                           -f retriever/fargate_retriever.Dockerfile --push .
+              docker build -t $DOCKER_REPO/flotorch-evaluation-$DEV_ENV_NAME:latest \
+                           -f evaluation/fargate_evaluation.Dockerfile --push .
+              docker build -t $DOCKER_REPO/flotorch-runtime-$DEV_ENV_NAME:latest \
+                           -f opensearch/opensearch.Dockerfile --push .
+            else
+              echo "Invalid environment selected: $environment"
+              exit 1
+            fi
+      Container:
+        Registry: CODECATALYST
+        Image: CodeCatalystLinuxLambda_x86_64:2024_03
+    Compute:
+      Type: Lambda
+      Fleet: Linux.x86-64.Large
