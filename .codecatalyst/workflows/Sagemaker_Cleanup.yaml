@@ -1,0 +1,73 @@
+Name: SageMaker_Cleanup
+SchemaVersion: "1.0"
+
+Triggers:
+  - Type: SCHEDULE
+    Expression: 0 * ? * * *
+
+Actions:
+  Cleanup:
+    Identifier: aws/build@v1.0.0
+    Inputs:
+      Sources:
+        - WorkflowSource
+    Configuration:
+      Steps:
+        - Run: pip install boto3
+        - Run: |
+              python -c "
+              import boto3
+              from datetime import datetime, timedelta
+              import os
+
+              def cleanup_region(region):
+                  cloudwatch = boto3.client('cloudwatch', region_name=region)
+                  sagemaker = boto3.client('sagemaker', region_name=region)
+
+                  try:
+                      endpoints = sagemaker.list_endpoints()['Endpoints']
+                      
+                      for endpoint in endpoints:
+                          end_time = datetime.utcnow()
+                          start_time = end_time - timedelta(hours=1)  # Match 1-hour schedule
+
+                          metrics_response = cloudwatch.get_metric_statistics(
+                              Namespace='AWS/SageMaker',
+                              MetricName='Invocations',
+                              Dimensions=[{'Name': 'EndpointName', 'Value': endpoint['EndpointName']}],
+                              StartTime=start_time,
+                              EndTime=end_time,
+                              Period=3600,
+                              Statistics=['Sum']
+                          )
+
+                          if (len(metrics_response['Datapoints']) == 0 or 
+                              all(datapoint['Sum'] == 0 for datapoint in metrics_response['Datapoints'])):
+                              
+                              endpoint_details = sagemaker.describe_endpoint(
+                                  EndpointName=endpoint['EndpointName']
+                              )
+                              config_name = endpoint_details['EndpointConfigName']
+                              
+                              sagemaker.delete_endpoint(EndpointName=endpoint['EndpointName'])
+                              print(f\"Deleted endpoint: {endpoint['EndpointName']} in {region}\")
+                              
+                              sagemaker.delete_endpoint_config(
+                                  EndpointConfigName=config_name
+                              )
+                              print(f\"Deleted config: {config_name} in {region}\")
+                  except Exception as e:
+                      print(f\"Error in {region}: {str(e)}\")
+                      raise
+
+              # Cleanup in both regions used by Dev environment
+              for region in ['us-east-1', 'us-west-2']:
+                  cleanup_region(region)
+              "
+      Container:
+        Registry: CODECATALYST
+        Image: CodeCatalystLinux_x86_64:2024_03
+    Compute:
+      Type: EC2
+    Environment:
+      Name: Dev
