@@ -104,7 +104,7 @@ def initialize_components(config: Config, experimentalConfig: ExperimentalConfig
         
         if experimentalConfig.bedrock_knowledge_base:
             logger.info("Connecting to Knowledge base")
-            vector_database = KnowledgeBaseVectorDatabase(region_name=experimentalConfig.aws_region)
+            vector_database = KnowledgeBaseVectorDatabase(region=experimentalConfig.aws_region)
         else:
             logger.info(f"Connecting to OpenSearch at {config.opensearch_host}")
             vector_database = OpenSearchVectorDatabase(
