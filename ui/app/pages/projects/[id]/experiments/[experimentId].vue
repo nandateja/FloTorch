@@ -187,6 +187,18 @@ const items = ref([
                   </td>
                 </tr>
                 <tr>
+                  <td class="font-medium">Inferencing Cost</td>
+                  <td>
+                  
+                    {{
+                      experimentsData?.inferencing_cost ? 
+                      useHumanCurrencyAmount(
+                        experimentsData?.inferencing_cost
+                      ) : 'Unable to fetch data'
+                    }}
+                  </td>
+                </tr>
+                <tr>
                   <td class="font-medium">Evaluation Cost</td>
                   <td>
                   
@@ -198,6 +210,7 @@ const items = ref([
                     }}
                   </td>
                 </tr>
+                 
               </tbody>
             </table>
           </UCard>
@@ -251,7 +264,7 @@ const items = ref([
                 <tr>
                   <td class="font-medium w-40">Indexing Embedded Tokens</td>
                   <td class="w-40">
-                    {{ experimentsData?.index_embed_tokens }}
+                    {{ experimentsData?.index_embed_tokens || 'NA' }}
                   </td>
                 </tr>
               </tbody>

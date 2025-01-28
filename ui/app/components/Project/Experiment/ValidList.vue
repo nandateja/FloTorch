@@ -361,26 +361,6 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
       return h(UButton, {
         color: "neutral",
         variant: "ghost",
-        label: "Bedrock Kb",
-        icon: isSorted
-          ? isSorted === "asc"
-            ? "i-lucide-arrow-up-narrow-wide"
-            : "i-lucide-arrow-down-wide-narrow"
-          : "i-lucide-arrow-up-down",
-        class: "-mx-2.5",
-        onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
-      });
-    },
-    enableHiding: true,
-    accessorKey: "kb_data",
-    label: "Bedrock Kb"
-  },
-  {
-    header: ({ column }) => {
-      const isSorted = column.getIsSorted();
-      return h(UButton, {
-        color: "neutral",
-        variant: "ghost",
         label: "Bedrock Kb Name",
         icon: isSorted
           ? isSorted === "asc"
@@ -474,9 +454,14 @@ const columnVisibility = ref({
                           <td>{{useHumanCurrencyAmount(row.original.retrieval_cost_estimate,3)}}</td>
                         </tr>
                         <tr>
+                          <td>Inferencing Cost Estimate:</td>
+                          <td>{{useHumanCurrencyAmount(row.original.inferencing_cost_estimate,3)}}</td>
+                        </tr>
+                        <tr>
                           <td>Evaluation Cost Estimate:</td>
                           <td>{{useHumanCurrencyAmount(row.original.eval_cost_estimate,3)}}</td>
                         </tr>
+                         
                       </tbody>
                     </table>
                   </UCard>
@@ -593,9 +578,6 @@ const columnVisibility = ref({
       </template>
        <template #kb_name-cell="{row}">
       {{!row.original.bedrock_knowledge_base ? 'NA' : row.original.kb_name}}
-      </template>
-      <template #kb_data-cell="{row}">
-      {{!row.original.bedrock_knowledge_base ? 'NA' : row.original.kb_data}}
       </template>
     </UTable>
   </div>
