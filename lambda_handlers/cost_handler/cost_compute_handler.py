@@ -92,7 +92,7 @@ def lambda_handler(event, context):
             total_answer_output_tokens = experiment.get("retrieval_output_tokens", 0)
 
         total_cost, indexing_cost, retrieval_cost, inferencing_cost, eval_cost = compute_actual_price(
-            event,
+            experiment,
             input_tokens=total_answer_input_tokens,
             output_tokens=total_answer_output_tokens,
             index_embed_tokens=total_index_embed_tokens,
