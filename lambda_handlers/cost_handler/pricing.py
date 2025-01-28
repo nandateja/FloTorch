@@ -51,8 +51,7 @@ def compute_actual_price(
         is_config_valid, config_missing = validate_params(
             aws_region=aws_region,
             retrieval_model=retrieval_model,
-            retrieval_service=retrieval_service,
-            bedrock_knowledge_base=bedrock_knowledge_base
+            retrieval_service=retrieval_service
         )
         if not is_config_valid:
             logger.error(
