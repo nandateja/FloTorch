@@ -3,6 +3,7 @@ import os
 import shutil
 import logging
 from util.s3util import S3Util
+from util.bedrock_utils import KnowledgeBaseUtils
 from config.config import get_config
 from decimal import Decimal
 from util.pdf_utils import extract_text_from_pdf_pymudf
@@ -203,10 +204,26 @@ def remove_invalid_combinations_keys(combinations):
 
     return combinations
 
+
+def unpack_knowledebases(combinations):
+    for combination in combinations:
+        kb_data = combination.get('kb_data')
+        if isinstance(kb_data, dict):
+            combination["kb_name"] = kb_data.get("name", "")
+            combination["kb_data"] = kb_data.get("id", "")
+            
+        elif isinstance(kb_data, str):
+            combination["kb_data"] = kb_data
+            combination["kb_name"] = ""
+            
+    return combinations
+
+
 def unpack_guardrails(combinations):
     for combination in combinations:
         combination["enable_guardrails"] = True if "guardrails" in combination else False
         combination["guardrail_id"] = combination.get("guardrails", {}).get("guardrails_id", "")
+        combination["guardrail_name"] = combination.get("guardrails", {}).get("name", "")
         combination["guardrail_version"] = combination.get("guardrails", {}).get("guardrail_version", "")
         combination["enable_prompt_guardrails"] = combination.get("guardrails", {}).get("enable_prompt_guardrails", False)
         combination["enable_context_guardrails"] = combination.get("guardrails", {}).get("enable_context_guardrails", False)
@@ -217,6 +234,20 @@ def unpack_guardrails(combinations):
 
     return combinations
 
+def add_kb_info(parameters_all):
+    if 'kb_data' in parameters_all:
+        if parameters_all['bedrock_knowledge_base']:
+            kb_ids = parameters_all['kb_data']
+            kb_data = []
+            for kb_id in kb_ids:
+                kb_name = KnowledgeBaseUtils(parameters_all['region']).get_kb_name(kb_id)
+                kb_data.append({
+                    "id": kb_id,
+                    "name": kb_name
+                })
+            parameters_all['kb_data'] = kb_data 
+    return parameters_all
+    
 def generate_all_combinations(data):
     # Parse the DynamoDB-style JSON
     parsed_data = {k: parse_dynamodb(v) for k, v in data.items()}
@@ -227,16 +258,18 @@ def generate_all_combinations(data):
     if "guardrails" in parsed_data and parsed_data["guardrails"]:
         parameters_all.update({"guardrails": parsed_data["guardrails"]})
     parameters_all.update(parsed_data["evaluation"])
+    parameters_all = add_kb_info(parameters_all)
     parameters_all = {key: value if isinstance(value, list) else [value] for key, value in parameters_all.items()}
     # Convert single values to lists and replace empty values with [0]
     parameters_all = {key: value if isinstance(value, list) else [value] for key, value in parameters_all.items()}
     parameters_all = {key: value if value else [0] for key, value in parameters_all.items()}
-
+    
     keys = parameters_all.keys()
     combinations = [dict(zip(keys, values)) for values in itertools.product(*parameters_all.values())]
     combinations = remove_invalid_combinations_keys(combinations)
     combinations = unpack_guardrails(combinations)
-
+    combinations = unpack_knowledebases(combinations)
+    
     gt_data = parameters_all["gt_data"][0]
     [num_prompts, num_chars] = read_gt_data(gt_data)
 
