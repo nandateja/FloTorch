@@ -41,18 +41,16 @@ def compute_actual_price(
         return None
 
     try:
-        aws_region = configuration.get("aws_region")
-        embedding_model = configuration.get("embedding_model")
-        retrieval_model = configuration.get("retrieval_model")
-        embedding_service = configuration.get("embedding_service")
-        retrieval_service = configuration.get("retrieval_service")
-        bedrock_knowledge_base = configuration.get("bedrock_knowledge_base")
+        aws_region = configuration.get("config", {}).get("region", "")
+        embedding_model = configuration.get("config", {}).get("embedding_model", "")
+        retrieval_model = configuration.get("config", {}).get("retrieval_model", "")
+        embedding_service = configuration.get("config", {}).get("embedding_service", "")
+        retrieval_service = configuration.get("config", {}).get("retrieval_service", "")
+        bedrock_knowledge_base = configuration.get("config", {}).get("bedrock_knowledge_base", False)
 
         is_config_valid, config_missing = validate_params(
             aws_region=aws_region,
-            embedding_model=embedding_model,
             retrieval_model=retrieval_model,
-            embedding_service=embedding_service,
             retrieval_service=retrieval_service,
             bedrock_knowledge_base=bedrock_knowledge_base
         )
@@ -105,7 +103,7 @@ def compute_actual_price(
             
             retrieval_model_input_actual_cost = (retrieval_model_input_price * float(input_tokens)) / MILLION
             retrieval_model_output_actual_cost = (retrieval_model_output_price * float(output_tokens)) / MILLION
-            if not bedrock_knowledge_base & embedding_service == "bedrock":
+            if (not bedrock_knowledge_base) and embedding_service == "bedrock":
                 query_embedding_cost = (embedding_model_price * float(query_embed_tokens)) / THOUSAND
             inferencing_cost = retrieval_model_input_actual_cost + retrieval_model_output_actual_cost + query_embedding_cost
         else:
