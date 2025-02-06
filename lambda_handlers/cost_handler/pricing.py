@@ -136,7 +136,7 @@ def compute_actual_price_breakdown(
                 query_embedding_cost = (embedding_model_price * float(query_embed_tokens)) / THOUSAND
                 inferencer_metadata['query_embed_tokens'] = query_embed_tokens
                 inferencer_metadata['query_embed_tokens_cost'] = query_embedding_cost
-            if rerank_model_id:
+            if rerank_model_id and rerank_model_id != "none" :
                 retriever_metadata['rerank_model'] = rerank_model_id
                 retriever_metadata['reranker_queries'] = question_details["reranker_queries"]
                 reranker_model_price = df[(df["model"] == rerank_model_id) & (df["Region"] == aws_region)]["input_price"]
