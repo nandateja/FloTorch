@@ -423,6 +423,7 @@ Resources:
                           "eval_retrieval_model.$": "$.Item.Item.config.M.eval_retrieval_model.S",
                           "rerank_model_id.$": "$.Item.Item.config.M.rerank_model_id.S",
                           "bedrock_knowledge_base.$": "$.Item.Item.config.M.bedrock_knowledge_base.Bool",
+                          "knowledge_base.$": "$.Item.Item.config.M.knowledge_base.Bool",
                           "ClusterArn": "${EcsClusterArn}",
                           "IndexingTaskDefinitionArn": "${IndexingTaskDefinitionArn}",
                           "RetrieverTaskDefinitionArn": "${RetrieverTaskDefinitionArn}",
@@ -1531,6 +1532,7 @@ Resources:
                           "eval_retrieval_model.$": "$.Item.Item.config.M.eval_retrieval_model.S",
                           "rerank_model_id.$": "$.Item.Item.config.M.rerank_model_id.S",
                           "bedrock_knowledge_base.$": "$.Item.Item.config.M.bedrock_knowledge_base.Bool",
+                          "knowledge_base.$": "$.Item.Item.config.M.knowledge_base.Bool",
                           "hierarchical_parent_chunk_size.$": "$.Item.Item.config.M.hierarchical_parent_chunk_size.N",
                           "hierarchical_child_chunk_size.$": "$.Item.Item.config.M.hierarchical_child_chunk_size.N",
                           "hierarchical_chunk_overlap_percentage.$": "$.Item.Item.config.M.hierarchical_chunk_overlap_percentage.N",
@@ -1547,8 +1549,16 @@ Resources:
                       "Type": "Choice",
                       "Choices": [
                         {
-                          "Variable": "$.parsedConfig.parsed_config.bedrock_knowledge_base",
-                          "BooleanEquals": true,
+                          "Or": [
+                            {
+                              "Variable": "$.parsedConfig.parsed_config.knowledge_base",
+                              "BooleanEquals": false
+                            },
+                            {
+                              "Variable": "$.parsedConfig.parsed_config.bedrock_knowledge_base",
+                              "BooleanEquals": true
+                            }
+                          ],
                           "Next": "Proceed to Retrieval Model Check"
                         }
                       ],
