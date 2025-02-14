@@ -46,6 +46,8 @@ class BedrockInferencer(BaseInferencer):
         
         # Get system prompt
         system_prompt = default_prompt if n_shot_prompt_guide is None or n_shot_prompt_guide.system_prompt is None else n_shot_prompt_guide.system_prompt
+
+        formatted_system_prompt = [{"text" : system_prompt}]
         
         base_prompt = n_shot_prompt_guide.user_prompt if n_shot_prompt_guide.user_prompt else ""
         messages.append(self._prepare_conversation(role="user", message=base_prompt))
@@ -71,7 +73,7 @@ class BedrockInferencer(BaseInferencer):
         # Add the current user prompt
         messages.append(self._prepare_conversation(role="user", message=user_query))
         
-        return system_prompt, messages
+        return formatted_system_prompt, messages
      
     @BedRockRetryHander()
     def generate_text(self, user_query: str, default_prompt: str, context: List[Dict] = None, **kwargs) -> Tuple[Dict[Any, Any], str]:
@@ -101,12 +103,11 @@ class BedrockInferencer(BaseInferencer):
         # Format message and role into a conversation
         if not message or not role:
             logger.error(f"Error in parsing message or role")
-        conversation = [
-            {
+        conversation = {
                 "role": role, 
                 "content": [{"text" : message}]
             }
-        ]
+        
         return conversation
 
     def _format_context(self, context: List[Dict[str, str]]) -> str:
