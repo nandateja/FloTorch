@@ -80,6 +80,7 @@ class RagasLLMEvaluator(RagasEvaluator):
         if self.experimental_config.knowledge_base:
             metrics_to_evaluate = metrics_to_evaluate + [self.faithfulness, self.context_precision]
 
+
         for metrics_record in metrics_records:
             sample_params = {
                 'user_input': metrics_record.question,
