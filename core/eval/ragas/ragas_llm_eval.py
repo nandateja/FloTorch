@@ -78,7 +78,7 @@ class RagasLLMEvaluator(RagasEvaluator):
         
         metrics_to_evaluate = [self.aspect_critic, self.answers_relevancy]
         if self.experimental_config.knowledge_base:
-            return metrics_to_evaluate + [self.faithfulness, self.context_precision]
+            metrics_to_evaluate + [self.faithfulness, self.context_precision]
 
         for metrics_record in metrics_records:
             sample_params = {
