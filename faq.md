@@ -156,8 +156,8 @@ Follow these steps to integrate a new SageMaker model:
 ## Embedding
   ## 1. Update Model Registry
   Open `core/embedding/__init__.py` and add your model ID to the `model_list`:
-  - For JumpStart models: Add the specific JumpStart model ID
-  - For Hugging Face models: Add the relevant Hugging Face model ID
+  - For JumpStart models: Add the specific JumpStart model ID. Supported model [list](https://sagemaker.readthedocs.io/en/stable/doc_utils/pretrainedmodels.html).
+  - For Hugging Face models: Add the relevant Hugging Face model ID. Model Id can be found on Huggingface hub.
   ## 2. Configure Model Parameters
   Open `core/embedding/sagemaker/sagemaker_embedder.py` and add an entry to the `EMBEDDING_MODELS` dictionary:
   ```python
