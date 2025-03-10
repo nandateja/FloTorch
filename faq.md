@@ -153,7 +153,7 @@ As a pre-requisite, sufficient instances are to be available for provisioning
 
 Follow these steps to integrate a new SageMaker model:
 
-- **Embedding:**
+## Embedding
   ## 1. Update Model Registry
   Open `core/embedding/__init__.py` and add your model ID to the `model_list`:
   - For JumpStart models: Add the specific JumpStart model ID
@@ -199,7 +199,7 @@ Follow these steps to integrate a new SageMaker model:
                             # Number of parallel calls the SageMaker instance can support
   }
   ```
-- **Inferencing:**
+## Inferencing
   ## 1. Update Model Registry
   Open `core/inference/__init__.py` and add your model ID to the `model_list`:
   - For JumpStart models: Add the specific JumpStart model ID
