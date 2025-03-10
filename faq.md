@@ -133,7 +133,7 @@ Supported models include:
 - **Embedding:**
   - BAAI/bge-large-en-v1.5
   - BAAI/bge-m3
-  - Qwen/Qwen2-7B
+  - Alibaba-NLP/gte-Qwen2-7B-instruct
 
 - **Inferencing:**
   - meta-llama/Llama-3.1-8B
