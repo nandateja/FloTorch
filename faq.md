@@ -190,7 +190,7 @@ Follow these steps to integrate a new SageMaker model:
     model_name: "ml.g5.xlarge"           // Instance type for deployment
   }
   ```
-  ## 4. Add the model for parallel experiments control
+  ## 4. Set up parameters for model parallel experimentation
   Open `app/seed_data.py` and add an entry to the `MODELS` dictionary:
   ```python
   MODELS = {
@@ -233,7 +233,7 @@ Follow these steps to integrate a new SageMaker model:
     model_name: "ml.g5.xlarge"           // Instance type for deployment
   }
   ```
-  ## 4. Add the model for parallel experiments control
+  ## 4. Set up parameters for model parallel experimentation
   Open `app/seed_data.py` and add an entry to the `MODELS` dictionary:
   ```python
   MODELS = {
