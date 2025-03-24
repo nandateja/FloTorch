@@ -63,6 +63,8 @@ def get_model_question_prices(file_path, model, input_tokens, output_tokens, reg
     """
     MILLION = 1_000_000
     try:
+        if '/' in model:
+            model = model.split('/')[1]
         # Create copy of pricing dataframe
         df = file_path.copy()
         
@@ -137,7 +139,7 @@ async def query_experiments(
         # Configurations        
         inference_model = exp_config.get("retrieval_model")
         inference_service = exp_config.get("retrieval_service")
-        inference_temperature = float(exp_config.get("temp_retrieval_llm"))
+        inference_temperature = float(exp_config.get("temp_retrieval_llm", 0.1))
 
         aws_region = exp_config.get("region")
         knowledge_base = exp_config.get("knowledge_base", False)
@@ -145,6 +147,9 @@ async def query_experiments(
 
         # Inferencer Initialization
         inferencer = InferencerProviderFactory.create_inferencer_provider(
+            exp_config.get("gateway_enabled"),
+            exp_config.get("gateway_url", ""),
+            exp_config.get("gateway_api_key", ""),
             inference_service,
             inference_model,
             aws_region,

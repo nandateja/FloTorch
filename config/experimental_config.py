@@ -47,7 +47,7 @@ class ExperimentalConfig(BaseModel):
     bedrock_knowledge_base: bool = False
     knowledge_base: bool = True
     is_opensearch: bool = True
-    is_enterprise: bool = False
+    gateway_enabled: bool = False
     gateway_url: Optional[str] = Field(alias="gateway_url")
     gateway_api_key: Optional[str] = Field(alias="gateway_api_key")
     class Config:
