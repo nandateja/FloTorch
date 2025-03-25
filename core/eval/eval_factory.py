@@ -18,8 +18,8 @@ class EvalFactory:
     _registry: Dict[str, Type[BaseEvaluator]] = {}
 
     @classmethod
-    def register_evaluator(cls, service_type: str, gateway_type: str, evaluator_cls: Type[BaseEvaluator]):
-        key = f"{service_type}:{gateway_type}"
+    def register_evaluator(cls, service_type: str, llm_service: str, evaluator_cls: Type[BaseEvaluator]):
+        key = f"{service_type}:{llm_service}"
         cls._registry[key] = evaluator_cls
 
     @classmethod
@@ -27,12 +27,12 @@ class EvalFactory:
         config = Config.load_config()
         
         eval_service = experimentalConfig.eval_service
-        gateway_type = 'custom_gateway' if experimentalConfig.gateway_enabled else 'bedrock'
+        llm_service = 'custom_gateway' if experimentalConfig.gateway_enabled else 'bedrock'
         
-        key = f"{eval_service}:{gateway_type}"
+        key = f"{eval_service}:{llm_service}"
 
         evaluator_cls = cls._registry.get(key)
         if not evaluator_cls:
-            raise EvaluatorServiceError(f"No evaluator_cls registered for service {eval_service_type} and type {gateway_type}")
+            raise EvaluatorServiceError(f"No evaluator_cls registered for service {eval_service_type} and type {llm_service}")
         
         return evaluator_cls(config=config, experimental_config=experimentalConfig)
