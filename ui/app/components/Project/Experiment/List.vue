@@ -769,7 +769,7 @@ const columns = ref<TableColumn<ProjectExperiment>[]>([
         h(UButton, {
         color: "neutral",
         variant: "ghost",
-        label: "Scores",
+        label: "Expert Evaluation Scores",
         trailingIcon: isSorted
           ? isSorted === "asc"
             ? "i-lsicon:triangle-up-filled"
@@ -786,7 +786,7 @@ const columns = ref<TableColumn<ProjectExperiment>[]>([
     },
     enableHiding: true,
     accessorKey: "scores",
-    label: 'Scores',
+    label: 'Expert Evaluation Scores',
   },
 ])
 
@@ -915,10 +915,10 @@ const sorting = ref([
               <UButton @click="openTooltipId = null" variant="ghost" color="neutral" trailing-icon="i-lucide-x" />
 
                     <ul>
-                      <li class="mb-2"><span class="tooltip-text-grey">Indexing Cost Estimate:</span> {{useHumanCurrencyAmount(row.original.indexing_cost_estimate,3)}}</li>
-                      <li class="mb-2"><span class="tooltip-text-grey">Retrieval Cost Estimate:</span> {{useHumanCurrencyAmount(row.original.retrieval_cost_estimate,3)}}</li>
-                      <li class="mb-2"><span class="tooltip-text-grey">Inferencing Cost Estimate:</span> {{useHumanCurrencyAmount(row.original.inferencing_cost_estimate,3)}}</li>
-                      <li class="mb-2"><span class="tooltip-text-grey">Evaluation Cost Estimate:</span> {{useHumanCurrencyAmount(row.original.eval_cost_estimate,3)}}</li>
+                      <li class="mb-2"><span class="tooltip-text-grey">Indexing Cost Estimate:</span> {{useHumanCurrencyAmount(row.original.config?.indexing_cost_estimate,3)}}</li>
+                      <li class="mb-2"><span class="tooltip-text-grey">Retrieval Cost Estimate:</span> {{useHumanCurrencyAmount(row.original.config?.retrieval_cost_estimate,3)}}</li>
+                      <li class="mb-2"><span class="tooltip-text-grey">Inferencing Cost Estimate:</span> {{useHumanCurrencyAmount(row.original.config?.inferencing_cost_estimate,3)}}</li>
+                      <li class="mb-2"><span class="tooltip-text-grey">Evaluation Cost Estimate:</span> {{useHumanCurrencyAmount(row.original.config?.eval_cost_estimate,3)}}</li>
                     </ul>
                   </div>
               </template>
@@ -927,7 +927,7 @@ const sorting = ref([
       </template>
     </UTable>
     <div v-if="hasAllExperimentsCompleted" class="flex justify-end">
-      <UButton :disabled="modelValue && (modelValue.length <= 1 || modelValue.length > 3)" class="secondary-btn mr-2" @click="navigateHumanEvaluation">{{modelValue && modelValue.length > 1 ? 'Human Evaluation': 'Choose 2-3 experiments for Human Evaluation'}}</UButton>
+      <UButton :disabled="modelValue && (modelValue.length <= 1 || modelValue.length > 3)" class="secondary-btn mr-2" @click="navigateHumanEvaluation">{{modelValue && modelValue.length > 1 ? 'Expert Evaluation': 'Choose 2-3 experiments for Expert Evaluation'}}</UButton>
       <DownloadResultsButton :results="experiments" :question-metrics="false" button-label="Download Results" />
     </div>
   </div>
