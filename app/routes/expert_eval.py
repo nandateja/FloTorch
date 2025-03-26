@@ -145,9 +145,6 @@ async def query_experiments(
 
         # Inferencer Initialization
         inferencer = InferencerProviderFactory.create_inferencer_provider(
-            exp_config.get("gateway_enabled"),
-            exp_config.get("gateway_url", ""),
-            exp_config.get("gateway_api_key", ""),
             inference_service,
             inference_model,
             aws_region,
