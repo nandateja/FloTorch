@@ -145,6 +145,9 @@ async def query_experiments(
 
         # Inferencer Initialization
         inferencer = InferencerProviderFactory.create_inferencer_provider(
+            exp_config.get("gateway_enabled"),
+            exp_config.get("gateway_url", ""),
+            exp_config.get("gateway_api_key", ""),
             inference_service,
             inference_model,
             aws_region,
@@ -195,8 +198,13 @@ async def query_experiments(
         input_tokens, output_tokens, total_tokens, latency = metadata.values()
         question_price, million_questions_price = get_model_question_prices(bedrock_price_df, inference_model, input_tokens, output_tokens, aws_region)
         
-        metadata['total_token_price'] = question_price
-        metadata['million_question_price'] = million_questions_price
+        
+        if 'latencyMs' in metadata:
+            metadata['latency_milliseconds'] = metadata.pop('latencyMs')
+        if 'totalTokens' in metadata:
+            del metadata['totalTokens']
+        metadata['total_token_cost'] = question_price
+        metadata['token_cost_for_million_such_questions'] = million_questions_price
 
         return {
             "experiment_id": experiment_id,
