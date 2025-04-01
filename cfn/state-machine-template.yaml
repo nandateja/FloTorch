@@ -266,7 +266,7 @@ Resources:
                 "Next": "Query"
               },
               "Query": {
-                "Next": "Set Model Invocation Defaults",
+                "Next": "Check if OpenSearch provisioned",
                 "Type": "Task",
                 "ResultPath": "$",
                 "ResultSelector": {
@@ -281,69 +281,6 @@ Resources:
                   "ExpressionAttributeValues": {
                     ":executionId": {
                       "S.$": "$.execution_id"
-                    }
-                  }
-                }
-              },
-              "Set Model Invocation Defaults": {
-                "Type": "Map",
-                "ItemsPath": "$.Items",
-                "ResultPath": null,
-                "Next": "Check if OpenSearch provisioned",
-                "Iterator": {
-                  "StartAt": "Insert retrieval model key",
-                  "States": {
-                    "Insert retrieval model key": {
-                      "Type": "Task",
-                      "Next": "Insert eval model key",
-                      "Resource": "arn:aws:states:::aws-sdk:dynamodb:putItem",
-                      "Parameters": {
-                        "TableName": "${ModelInvocationsTableName}",
-                        "ConditionExpression": "attribute_not_exists(execution_model_id)",
-                        "Item": {
-                          "execution_model_id": {
-                            "S.$": "$.config.M.retrieval_model.S"
-                          },
-                          "invocations": {
-                            "N": "0"
-                          },
-                          "limit": {
-                            "N": "10"
-                          },
-                          "last_updated": {
-                            "S.$": "$$.State.EnteredTime"
-                          },
-                          "timestamp": {
-                            "S.$": "$$.State.EnteredTime"
-                          }
-                        }
-                      }
-                    },
-                    "Insert eval model key": {
-                      "Type": "Task",
-                      "End": true,
-                      "Resource": "arn:aws:states:::aws-sdk:dynamodb:putItem",
-                      "Parameters": {
-                        "TableName": "${ModelInvocationsTableName}",
-                        "ConditionExpression": "attribute_not_exists(execution_model_id)",
-                        "Item": {
-                          "execution_model_id": {
-                            "S.$": "$.config.M.eval_embedding_model.S"
-                          },
-                          "invocations": {
-                            "N": "0"
-                          },
-                          "limit": {
-                            "N": "10"
-                          },
-                          "last_updated": {
-                            "S.$": "$$.State.EnteredTime"
-                          },
-                          "timestamp": {
-                            "S.$": "$$.State.EnteredTime"
-                          }
-                        }
-                      }
                     }
                   }
                 }
@@ -1265,22 +1202,80 @@ Resources:
                       }
                     },
                     "Eval Model Check": {
-                      "Next": "Evaluate eval model check",
                       "Type": "Task",
-                      "ResultPath": "$.eval_invocations",
-                      "ResultSelector": {
-                        "invocations.$": "States.MathAdd(States.StringToJson($.Item.invocations.N), 0)",
-                        "limit.$": "States.MathAdd(States.StringToJson($.Item.limit.N), 0)"
-                      },
+                      "ResultPath": "$.evalModelRaw",
                       "Resource": "arn:aws:states:::aws-sdk:dynamodb:getItem",
                       "Parameters": {
-                        "TableName": "${ModelInvocationsTableName}",
-                        "Key": {
-                          "execution_model_id": {
-                            "S.$": "States.Format('{}_{}', 'bedrock', $.parsedConfig.parsed_config.eval_embedding_model)"
-                          }
+                      "TableName": "${ModelInvocationsTableName}",
+                      "Key": {
+                        "execution_model_id": {
+                        "S.$": "States.Format('{}_{}', 'bedrock', $.parsedConfig.parsed_config.eval_embedding_model)"
                         }
                       }
+                      },
+                      "Catch": [
+                      {
+                        "ErrorEquals": ["States.ALL"],
+                        "Next": "Eval Model Defaults"
+                      }
+                      ],
+                      "Next": "Check if Eval Model Exists"
+                    },
+                    "Check if Eval Model Exists": {
+                      "Type": "Choice",
+                      "Choices": [
+                      {
+                        "Variable": "$.evalModelRaw.Item",
+                        "IsPresent": true,
+                        "Next": "Normalize Eval Model Result"
+                      }
+                      ],
+                      "Default": "Eval Model Defaults"
+                    },
+                    "Normalize Eval Model Result": {
+                      "Type": "Pass",
+                      "Parameters": {
+                      "invocations.$": "States.StringToJson($.evalModelRaw.Item.invocations.N)",
+                      "limit.$": "States.StringToJson($.evalModelRaw.Item.limit.N)"
+                      },
+                      "ResultPath": "$.eval_invocations",
+                      "Next": "Evaluate eval model check"
+                    },
+                    "Eval Model Defaults": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::aws-sdk:dynamodb:putItem",
+                      "Parameters": {
+                      "TableName": "${ModelInvocationsTableName}",
+                      "Item": {
+                        "execution_model_id": {
+                        "S.$": "States.Format('{}_{}', 'bedrock', $.parsedConfig.parsed_config.eval_embedding_model)"
+                        },
+                        "invocations": {
+                        "N": "0"
+                        },
+                        "limit": {
+                        "N": "10"
+                        },
+                        "timestamp": {
+                        "S.$": "$$.State.EnteredTime"
+                        },
+                        "last_updated": {
+                        "S.$": "$$.State.EnteredTime"
+                        }
+                      },
+                      "ConditionExpression": "attribute_not_exists(execution_model_id)"
+                      },
+                      "ResultPath": null,
+                      "Next": "Inject Eval Invocation Defaults"
+                    },
+                    "Inject Eval Invocation Defaults": {
+                      "Type": "Pass",
+                      "Result": {
+                      "invocations": 0,
+                      "limit": 10
+                      },
+                      "ResultPath": "$.eval_invocations",
+                      "Next": "Evaluate eval model check"
                     },
                     "Eval Model Invocation Update": {
                       "Next": "Update eval status in progress",
