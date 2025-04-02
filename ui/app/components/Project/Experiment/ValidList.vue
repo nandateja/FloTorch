@@ -238,6 +238,11 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
     enableHiding: true,
     accessorKey: "guardrail_name",
     label: 'Guardrail',
+    sortingFn: (rowA, rowB) => {
+      const a = rowA.original.guardrail_name ?? 0;
+      const b = rowB.original.guardrail_name ?? 0;
+      return a.localeCompare(b);
+    },
     cell: ({ row }) => {
       return row.original.guardrail_name || 'NA';
     }
