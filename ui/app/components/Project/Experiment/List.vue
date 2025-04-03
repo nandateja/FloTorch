@@ -101,6 +101,11 @@ const columns = ref<TableColumn<ProjectExperiment>[]>([
     accessorKey: "experiment_status",
     enableHiding: true,
     label: 'Status',
+    sortingFn: (rowA, rowB) => {
+      const a = useHumanExperimentStatus(rowA.original.experiment_status) ?? 0;
+      const b = useHumanExperimentStatus(rowB.original.experiment_status) ?? 0;
+      return a.localeCompare(b);
+    },
   },
   {
     header: ({ column }) => {
