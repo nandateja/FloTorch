@@ -804,9 +804,10 @@ const getModelName = (type: "indexing" | "retrieval", model: string) => {
 }
 
 const hasAllExperimentsCompleted = computed(() => {
-  return props?.experiments?.every((experiment) => {
+  const completedExperiments = props?.experiments?.filter((experiment) => {
     return experiment.experiment_status === "succeeded" || experiment.experiment_status === "failed"
   })
+  return completedExperiments?.length >= 2
 })
 
 const openTooltipId = ref<string | null>(null)
