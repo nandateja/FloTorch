@@ -169,6 +169,8 @@ export type ProjectCreateIndexingStrategy = z.infer<
 export const ProjectNShotPromptGuideSchema = z.object({
   user_prompt: z.string({
     required_error: "User prompt is required",
+  }).min(1, {
+    message: "User prompt is required",
   }),
   examples: z
     .array(
@@ -181,6 +183,8 @@ export const ProjectNShotPromptGuideSchema = z.object({
     .optional(),
   system_prompt: z.string({
     required_error: "System prompt is required",
+  }).min(1, {
+    message: "System prompt is required",
   }),
 }, {
   message : "Shot prompt file is required"
