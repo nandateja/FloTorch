@@ -175,8 +175,11 @@ export const ProjectNShotPromptGuideSchema = z.object({
   examples: z
     .array(
       z.object({
-        example: z.string({
-          required_error: "Example is required",
+        question: z.string({
+          required_error: "Question is required",
+        }),
+        answer: z.string({
+          required_error: "Answer is required",
         }),
       })
     )
