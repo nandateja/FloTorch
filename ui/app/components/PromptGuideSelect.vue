@@ -14,7 +14,8 @@ const { open, reset, onChange } = useFileDialog({
 const validationSchema = computed(() => {
   const schema = ProjectNShotPromptGuideSchema.extend({
     examples: z.array(z.object({
-          example: z.string(),
+          question: z.string(),
+          answer: z.string(),
         })).min(props.requiredPrompts, {
         message: `Must have at least ${props.requiredPrompts} examples`
       })
