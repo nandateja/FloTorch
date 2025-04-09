@@ -8,7 +8,7 @@ from .sagemaker.sagemaker_inferencer import SageMakerInferencer
 model_list = [
                 "meta-textgeneration-llama-3-1-8b-instruct", # Model for text generation (Llama)
                 "huggingface-llm-falcon-7b-instruct-bf16", # Model for text generation (Falcon)
-
+                "meta-vlm-llama-4-scout-17b-16e-instruct",
                 "meta-textgeneration-llama-3-3-70b-instruct", #Llama model with more parameters for text generation
                 "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
                 "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",

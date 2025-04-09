@@ -412,6 +412,13 @@ export const useProjectCreateMeta = () => {
           model_name : "ml.p4d.24xlarge"
         },
         {
+          label: "meta-llama/Llama-4-Scout-17B-16E-Instruct (ml.p4d.24xlarge)",
+          value: "meta-vlm-llama-4-scout-17b-16e-instruct",
+          service: "sagemaker",
+          type: "meta-llama/Llama-4-Scout-17B-16E-Instruct",
+          model_name : "ml.p4d.24xlarge"
+        },
+        {
           label: "deepseek-ai/DeepSeek-R1-Distill-Llama-8B (ml.g5.2xlarge)",
           value: "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
           service: "sagemaker",

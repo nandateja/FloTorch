@@ -42,6 +42,7 @@ MODELS = {
     "sagemaker_meta-textgeneration-llama-3-1-8b-instruct": 2,
     "sagemaker_huggingface-llm-falcon-7b-instruct-bf16": 2,
     "sagemaker_meta-textgeneration-llama-3-3-70b-instruct": 4,
+    "sagemaker_meta-vlm-llama-4-scout-17b-16e-instruct": 2,
     "sagemaker_deepseek-ai/DeepSeek-R1-Distill-Llama-8B": 2,
     "sagemaker_deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B": 4,
     "sagemaker_deepseek-ai/DeepSeek-R1-Distill-Qwen-7B": 2,
