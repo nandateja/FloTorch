@@ -2,10 +2,12 @@
   "system_prompt": "You are a helpful assistant.",
   "examples": [
     {
-      "example": "Example 1 to include to N shot prompts"
+      "question": "Question 1 to include to N shot prompts",
+      "answer": "Answer 1 to include to N shot prompts"
     },
     {
-      "example": "Example 2 to include to N shot prompts"
+      "question": "Question 2 to include to N shot prompts",
+      "answer": "Answer 2 to include to N shot prompts"
     }
   ],
   "user_prompt": "Now answer the user's question"
