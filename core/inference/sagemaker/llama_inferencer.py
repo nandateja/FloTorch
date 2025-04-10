@@ -74,28 +74,16 @@ class LlamaInferencer(SageMakerInferencer):
         messages.append(self._prepare_conversation(role="user", message=user_query))
 
         return system_prompt, messages
-    
-    def generate_text(self, user_query: str, default_prompt: str, context: List[Dict] = None, **kwargs) -> str:
+        
+    def construct_payload(self, system_prompt: str, prompt: str) -> dict:
         """
-        Generates a response based on the provided user query and context. It formats the context, sends it to 
-        the model for text generation, and processes the response to return the generated text.
-
+        Constructs llama 4 payload dictionary for model inference with the given prompts and default parameters.
+        
         Args:
-            user_query (str): The query provided by the user for which a response is generated.
-            context (List[Dict]): A list of context passages, each represented as a dictionary.
-            default_prompt (str): A default prompt that is used to guide the text generation.
-            **kwargs: Additional keyword arguments, if any.
+            system_prompt (str): The system-level prompt that guides the model's behavior
+            prompt (str): The actual prompt/query to be sent to the model
 
-        Returns:
-            tuple: A tuple containing metadata (str) and the cleaned generated text (str).
         """
-        
-        # Ensure the generation predictor is initialized
-        if not self.inferencing_predictor:
-            raise ValueError("Generation predictor not initialized")
-        
-        system_prompt, prompt = self.generate_prompt(self.experiment_config, default_prompt, user_query, context)
-        
         # Define default parameters for the model's generation
         default_params = {
             "max_new_tokens": 256,
@@ -110,48 +98,18 @@ class LlamaInferencer(SageMakerInferencer):
             "messages": prompt,
             "parameters": default_params
             }
+        
+        return payload
+    
+    def parse_response(self, response: dict) -> str:
+        """
+        Parses the response from the model and extracts the generated text.
 
-        try:
-            start_time = time.time()
-            
-            # Get response from the model
-            response = self.inferencing_predictor.predict(payload)
-
-            # Calculate latency metrics
-            latency = int((time.time() - start_time) * 1000)
-            generated_text = response["choices"][0]["message"]["content"]
-            
-            # Process the generated text to extract the answer
-            if "The final answer is:" in generated_text:
-                answer = generated_text.split("The final answer is:")[1].strip()
-            elif "Assistant:" in generated_text:
-                answer = generated_text.split("Assistant:")[1].strip()
-            else:
-                answer = generated_text.strip()
-
-            # Clean and validate the response
-            cleaned_response = self._clean_response(answer)
-            
-            # Final validation of the generated text
-            if not cleaned_response or cleaned_response.isspace() or 'DRAFT' in cleaned_response:
-                return "Unable to generate a proper response. Please try again."
-
-            # SageMaker does not provide input tokens as metadata.
-            # As a workaround, we use a rough approximation: ~4 characters per token.
-            input_tokens = len(prompt) // 4
-            output_tokens = len(generated_text) // 4
-            total_tokens = input_tokens + output_tokens
-            
-            answer_metadata = {
-                'inputTokens': input_tokens,
-                'outputTokens': output_tokens,
-                'totalTokens': total_tokens,
-                'latencyMs': latency
-            }
-            
-            return answer_metadata, cleaned_response
-
-        except Exception as e:
-            logger.error(f"Error generating response: {str(e)}")
-            return f"Error generating response: {str(e)}"
+        Args:
+            response (dict): The raw response from the model
+        """
+        if "choices" in response and isinstance(response["choices"], list):
+            return response["choices"][0]["message"]["content"]
+        else:
+            raise ValueError(f"Unexpected Llama-4 response format: {response}")
         

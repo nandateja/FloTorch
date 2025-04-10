@@ -441,6 +441,46 @@ class SageMakerInferencer(BaseInferencer):
             formatted_context += "Error processing context"
             return formatted_context
         
+    def construct_payload(self, system_prompt: str, prompt: str) -> dict:
+        """
+        Constructs the payload dictionary for model inference with the given prompts and default parameters.
+        
+        Args:
+            system_prompt (str): The system-level prompt that guides the model's behavior
+            prompt (str): The actual prompt/query to be sent to the model
+
+        """
+        # Define default parameters for controlling the model's text generation
+        default_params = {
+            "max_new_tokens": 256,
+            "temperature": self.experiment_config.temp_retrieval_llm,
+            "top_p": 0.9,
+            "do_sample": True
+            }
+        # Construct the complete payload with prompt and generation parameters
+        payload = {
+            "inputs": prompt,
+            "parameters": default_params
+            }
+        
+        return payload
+    
+    def parse_response(self, response: dict) -> str:
+        """
+        Parses the response from the model and extracts the generated text.
+
+        Args:
+            response (dict): The raw response from the model
+        """
+        # Handle different response formats (Falcon vs Llama)
+        if isinstance(response, list):
+            # Falcon-style response: Retrieve generated text from the list
+            return response[0].get('generated_text', '') if response else ''
+        elif isinstance(response, dict):
+            return response.get('generated_text', '')
+        else:
+            raise ValueError(f"Unexpected response format: {type(response)}")
+        
 
     def generate_text(self, user_query: str, default_prompt: str, context: List[Dict] = None, **kwargs) -> str:
         """
@@ -463,20 +503,7 @@ class SageMakerInferencer(BaseInferencer):
         
         system_prompt, prompt = self.generate_prompt(self.experiment_config, default_prompt, user_query, context)
         
-        # Define default parameters for the model's generation
-        default_params = {
-            "max_new_tokens": 256,
-            "temperature": self.experiment_config.temp_retrieval_llm,
-            "top_p": 0.9,
-            "do_sample": True
-        }
-        
-        # Prepare payload for model inference
-
-        payload = {
-            "inputs": prompt,
-            "parameters": default_params
-        }
+        payload = self.construct_payload(system_prompt, prompt)
 
         try:
             start_time = time.time()
@@ -487,14 +514,7 @@ class SageMakerInferencer(BaseInferencer):
             # Calculate latency metrics
             latency = int((time.time() - start_time) * 1000)
 
-            # Handle different response formats (Falcon vs Llama)
-            if isinstance(response, list):
-                # Falcon-style response: Retrieve generated text from the list
-                generated_text = response[0].get('generated_text', '') if response else ''
-            elif isinstance(response, dict):
-                generated_text = response.get('generated_text', '')
-            else:
-                raise ValueError(f"Unexpected response format: {type(response)}")
+            generated_text = self.parse_response(response)
             
             # Process the generated text to extract the answer
             if "The final answer is:" in generated_text:
