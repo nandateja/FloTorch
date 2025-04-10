@@ -335,16 +335,6 @@ class SageMakerInferencer(BaseInferencer):
         else:
             logger.error(f"Model ID {model_id} is not recognized as an inferencing model.")
             
-    def _prepare_conversation(self, message: str, role: str):
-        # Format message and role into a conversation
-        if not message or not role:
-            logger.error(f"Error in parsing message or role")
-        conversation = {
-                "role": role, 
-                "content": message
-            }
-        return conversation
-            
     def generate_prompt(self, experiment_config: ExperimentalConfig, default_prompt: str, user_query: str, context: List[Dict] = None):
         n_shot_prompt_guide = experiment_config.n_shot_prompt_guide_obj
         n_shot_prompt = experiment_config.n_shot_prompts
@@ -370,15 +360,6 @@ class SageMakerInferencer(BaseInferencer):
                     Search Results: {context_text}
                     Summary:"""
                 return None, prompt
-            
-            if self.inferencing_model_id.startswith("meta-vlm-llama-4"):
-                messages = []
-                messages.append(self._prepare_conversation(role="user", message=base_prompt))
-                if context_text:
-                    messages.append(self._prepare_conversation(role="user", message=context_text))
-                messages.append(self._prepare_conversation(role="user", message=user_query))
-
-                return system_prompt, messages
 
             else:
                 prompt = (
@@ -400,14 +381,13 @@ class SageMakerInferencer(BaseInferencer):
                         else examples)
         
         # Use string concatenation for example formatting
-        if not self.inferencing_model_id.startswith("meta-vlm-llama-4"):
-            example_text = ""
-            for example in selected_examples:
-                if 'example' in example:
-                    example_text += "- " + example['example'] + "\n"
-                elif 'question' in example and 'answer' in example:
-                    example_text += " - Sample question:" + example['question'] + "\n"
-                    example_text += "- Sample answer:" + example['answer'] + "\n"
+        example_text = ""
+        for example in selected_examples:
+            if 'example' in example:
+                example_text += "- " + example['example'] + "\n"
+            elif 'question' in example and 'answer' in example:
+                example_text += " - Sample question:" + example['question'] + "\n"
+                example_text += "- Sample answer:" + example['answer'] + "\n"
         
         logger.info(f"into {n_shot_prompt} shot prompt  with examples {len(selected_examples)}")
         
@@ -420,23 +400,6 @@ class SageMakerInferencer(BaseInferencer):
                 Summary:"""
                 
             return None, prompt
-        
-        if self.inferencing_model_id.startswith("meta-vlm-llama-4"):
-            messages = []
-            messages.append(self._prepare_conversation(role="user", message=base_prompt))
-            for example in selected_examples:
-                if 'example' in example:
-                    messages.append(self._prepare_conversation(role="user", message=example['example']))
-                elif 'question' in example and 'answer' in example:
-                    messages.append(self._prepare_conversation(role="user", message=example['question']))
-                    messages.append(self._prepare_conversation(role="assistant", message=example['answer']))
-            
-            if context_text:
-                messages.append(self._prepare_conversation(role="user", message=context_text))
-                
-            messages.append(self._prepare_conversation(role="user", message=user_query))
-
-            return system_prompt, messages 
         
         else:            
             prompt = (
@@ -509,17 +472,11 @@ class SageMakerInferencer(BaseInferencer):
         }
         
         # Prepare payload for model inference
-        if self.inferencing_model_id.startswith("meta-vlm-llama-4"):
-            payload = {
-                "system": system_prompt,
-                "messages": prompt,
-                "parameters": default_params
-            }
-        else:
-            payload = {
-                "inputs": prompt,
-                "parameters": default_params
-            }
+
+        payload = {
+            "inputs": prompt,
+            "parameters": default_params
+        }
 
         try:
             start_time = time.time()
@@ -535,12 +492,7 @@ class SageMakerInferencer(BaseInferencer):
                 # Falcon-style response: Retrieve generated text from the list
                 generated_text = response[0].get('generated_text', '') if response else ''
             elif isinstance(response, dict):
-                # Check for OpenAI-style structure (LLaMA 4 etc.)
-                if "choices" in response and isinstance(response["choices"], list):
-                    generated_text = response["choices"][0]["message"]["content"]
-                else:
-                    # Fallback to Llama-style (single string key)
-                    generated_text = response.get('generated_text', '')
+                generated_text = response.get('generated_text', '')
             else:
                 raise ValueError(f"Unexpected response format: {type(response)}")
             
