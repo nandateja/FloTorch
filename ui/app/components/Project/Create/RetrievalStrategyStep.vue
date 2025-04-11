@@ -131,7 +131,7 @@ const handleTooltip = (tooltipInfo: {tooltip: string, fieldName: string}) => {
     <UFormField name="retrieval"
       :label="`Inferencing Model ${state?.retrieval?.length === 0 || state?.retrieval === undefined ? '' : `(${state?.retrieval?.length})`}`"
       >
-      <ModelSelect v-model="state.retrieval" model="retrieval" />
+      <ModelSelect v-model="state.retrieval" model="retrieval" :region="region" />
       <template #label="{ label }">
         <div class="flex items-center">
           {{ label }} <span class="italic"> - required</span>
