@@ -803,11 +803,16 @@ const getModelName = (type: "indexing" | "retrieval", model: string) => {
   return useGetModelData(type, model)?.label
 }
 
+const completedExperiments = ref(0)
+
 const hasAllExperimentsCompleted = computed(() => {
-  const completedExperiments = props?.experiments?.filter((experiment) => {
+  const completedExperimentsIterations = props?.experiments?.filter((experiment) => {
     return experiment.experiment_status === "succeeded" || experiment.experiment_status === "failed"
   })
-  return completedExperiments?.length >= 2
+
+  completedExperiments.value = completedExperimentsIterations?.length
+  return completedExperiments;
+  // return completedExperiments?.length >= 2
 })
 
 const openTooltipId = ref<string | null>(null)
@@ -933,7 +938,7 @@ const sorting = ref([
       </template>
     </UTable>
     <div v-if="hasAllExperimentsCompleted" class="flex justify-end">
-      <UButton :disabled="modelValue && (modelValue.length <= 1 || modelValue.length > 3)" class="secondary-btn mr-2" @click="navigateHumanEvaluation">{{modelValue && modelValue.length > 1 ? 'Expert Evaluation': 'Choose 2-3 experiments for Expert Evaluation'}}</UButton>
+      <UButton v-if="completedExperiments >= 2" :disabled="modelValue && (modelValue.length <= 1 || modelValue.length > 3)" class="secondary-btn mr-2" @click="navigateHumanEvaluation">{{modelValue && modelValue.length > 1 ? 'Expert Evaluation': 'Choose 2-3 experiments for Expert Evaluation'}}</UButton>
       <DownloadResultsButton :results="experiments" :question-metrics="false" button-label="Download Results" />
     </div>
   </div>

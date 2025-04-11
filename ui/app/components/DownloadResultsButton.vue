@@ -47,7 +47,7 @@ const downloadResults = () => {
         answer_relevance:
           item.eval_metrics?.M?.answers_relevancy_score ||item.eval_metrics?.answers_relevancy_score || (item.eval_metrics?.M?.answers_relevancy_score === 0 ? 0 : "-"),
         duration: item.total_time || (item.total_time === 0 ? 0 : "-"),
-        embedding_model: item.config.embedding_model,
+        embedding_model: item.config.embedding_model || "NA",
         evaluation_service: item.config.eval_service,
         evaluation_embedding_model:
           item.config.eval_embedding_model,
