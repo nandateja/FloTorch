@@ -70,7 +70,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -109,7 +109,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -132,7 +132,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -155,7 +155,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -178,7 +178,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -201,7 +201,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -229,7 +229,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -238,6 +238,11 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
     enableHiding: true,
     accessorKey: "guardrail_name",
     label: 'Guardrail',
+    sortingFn: (rowA, rowB) => {
+      const a = rowA.original.guardrail_name ?? 0;
+      const b = rowB.original.guardrail_name ?? 0;
+      return a.localeCompare(b);
+    },
     cell: ({ row }) => {
       return row.original.guardrail_name || 'NA';
     }
@@ -255,7 +260,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -278,7 +283,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -318,7 +323,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -353,7 +358,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -376,7 +381,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -399,7 +404,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -422,7 +427,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -445,7 +450,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -468,7 +473,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })
@@ -490,7 +495,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
   //           ? "i-lucide-arrow-up-narrow-wide"
   //           : "i-lucide-arrow-down-wide-narrow"
   //         : "i-lucide-arrow-up-down",
-  //    class: "-mx-2.5 focus:font-bold hover:font-bold",
+  //    class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
   //       onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
   //     });
   //   },
@@ -511,7 +516,7 @@ const columns = ref<TableColumn<ValidExperiment>[]>([
             ? "i-lsicon:triangle-up-filled"
             : "i-lsicon:triangle-down-filled"
           : "i-lsicon:triangle-down-outline",
-     class: "-mx-2.5 focus:font-bold hover:font-bold",
+     class: "-mx-2.5 focus:font-bold hover:font-bold hover:bg-white cursor-pointer",
         onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
       h('div', { class: 'h-5 w-[2px] bg-gray-200 dark:bg-gray-700 ml-2' })

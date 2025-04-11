@@ -99,7 +99,7 @@ const formatMetadataKey = (key: string) => {
 <template>
   <div class="h-[calc(100vh-200px)] mt-5">
     <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Human Evaluation</h1>
+      <h1 class="text-2xl font-bold">Expert Evaluation</h1>
       <UButton class="secondary-btn" :to="{name: 'projects-id-experiments', query: {experiments: experimentIds.join(',')}}">
         See Results
         <UIcon name="i-lucide-arrow-right" />
@@ -168,11 +168,11 @@ const formatMetadataKey = (key: string) => {
                       <div>
                         <div class="" v-for="(value, key) in experiment.metadata">
                           <strong>{{ formatMetadataKey(key) }}: </strong> 
-                          <span v-if="formatMetadataKey(key).toLowerCase() === 'total token price'">
-                            {{ useHumanCurrencyAmount(value,5) }}
+                          <span v-if="formatMetadataKey(key).toLowerCase() === 'total token cost'">
+                            {{ useHumanCurrencyAmount(value,4) }}
                           </span>
-                          <span v-else-if="formatMetadataKey(key).toLowerCase() === 'million question price'">
-                            {{ useHumanCurrencyAmount(value) }}
+                          <span v-else-if="formatMetadataKey(key).toLowerCase() === 'token cost for million such questions'">
+                            {{ useHumanCurrencyAmount(value,2) }}
                           </span>
                           <span v-else>
                             {{ value }}

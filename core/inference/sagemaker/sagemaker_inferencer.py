@@ -32,6 +32,10 @@ INFERENCER_MODELS = {
     "meta-textgeneration-llama-3-3-70b-instruct": {
         "model_source": "jumpstart",
         "instance_type": "ml.p4d.24xlarge"
+    },
+    "meta-vlm-llama-4-scout-17b-16e-instruct": {
+        "model_source": "jumpstart",
+        "instance_type": "ml.p4d.24xlarge"
     }
     ,
     "deepseek-ai/DeepSeek-R1-Distill-Llama-8B": {
@@ -355,16 +359,17 @@ class SageMakerInferencer(BaseInferencer):
                     Query: {user_query}
                     Search Results: {context_text}
                     Summary:"""
-                return prompt
-                    
+                return None, prompt
+
             else:
                 prompt = (
                     "Human: " + system_prompt + "\n\n" + 
+                    "Search Query:" + user_query + "\n\n" +
                     context_text + "\n\n" + 
                     base_prompt + "\n\n" +
                     "Assistant: The final answer is:" 
                 )
-                return prompt.strip()
+                return None, prompt.strip()
                 
         
         # Get examples
@@ -378,7 +383,11 @@ class SageMakerInferencer(BaseInferencer):
         # Use string concatenation for example formatting
         example_text = ""
         for example in selected_examples:
-            example_text += "- " + example["example"] + "\n"
+            if 'example' in example:
+                example_text += "- " + example['example'] + "\n"
+            elif 'question' in example and 'answer' in example:
+                example_text += " - Sample question:" + example['question'] + "\n"
+                example_text += "- Sample answer:" + example['answer'] + "\n"
         
         logger.info(f"into {n_shot_prompt} shot prompt  with examples {len(selected_examples)}")
         
@@ -390,7 +399,7 @@ class SageMakerInferencer(BaseInferencer):
                 Search Results: {context_text}
                 Summary:"""
                 
-            return prompt
+            return None, prompt
         
         else:            
             prompt = (
@@ -402,7 +411,7 @@ class SageMakerInferencer(BaseInferencer):
                 "Assistant: The final answer is:" 
             )
             
-            return prompt.strip()
+            return None, prompt.strip()
     
     def _format_context(self, user_query: str, context: List[Dict[str, str]]) -> str:
         """Format context documents into a single string."""
@@ -432,6 +441,46 @@ class SageMakerInferencer(BaseInferencer):
             formatted_context += "Error processing context"
             return formatted_context
         
+    def construct_payload(self, system_prompt: str, prompt: str) -> dict:
+        """
+        Constructs the payload dictionary for model inference with the given prompts and default parameters.
+        
+        Args:
+            system_prompt (str): The system-level prompt that guides the model's behavior
+            prompt (str): The actual prompt/query to be sent to the model
+
+        """
+        # Define default parameters for controlling the model's text generation
+        default_params = {
+            "max_new_tokens": 256,
+            "temperature": self.experiment_config.temp_retrieval_llm,
+            "top_p": 0.9,
+            "do_sample": True
+            }
+        # Construct the complete payload with prompt and generation parameters
+        payload = {
+            "inputs": prompt,
+            "parameters": default_params
+            }
+        
+        return payload
+    
+    def parse_response(self, response: dict) -> str:
+        """
+        Parses the response from the model and extracts the generated text.
+
+        Args:
+            response (dict): The raw response from the model
+        """
+        # Handle different response formats (Falcon vs Llama)
+        if isinstance(response, list):
+            # Falcon-style response: Retrieve generated text from the list
+            return response[0].get('generated_text', '') if response else ''
+        elif isinstance(response, dict):
+            return response.get('generated_text', '')
+        else:
+            raise ValueError(f"Unexpected response format: {type(response)}")
+        
 
     def generate_text(self, user_query: str, default_prompt: str, context: List[Dict] = None, **kwargs) -> str:
         """
@@ -452,21 +501,9 @@ class SageMakerInferencer(BaseInferencer):
         if not self.inferencing_predictor:
             raise ValueError("Generation predictor not initialized")
         
-        prompt = self.generate_prompt(self.experiment_config, default_prompt, user_query, context)
+        system_prompt, prompt = self.generate_prompt(self.experiment_config, default_prompt, user_query, context)
         
-        # Define default parameters for the model's generation
-        default_params = {
-            "max_new_tokens": 256,
-            "temperature": self.experiment_config.temp_retrieval_llm,
-            "top_p": 0.9,
-            "do_sample": True
-        }
-        
-        # Prepare payload for model inference
-        payload = {
-            "inputs": prompt,
-            "parameters": default_params
-        }
+        payload = self.construct_payload(system_prompt, prompt)
 
         try:
             start_time = time.time()
@@ -477,15 +514,7 @@ class SageMakerInferencer(BaseInferencer):
             # Calculate latency metrics
             latency = int((time.time() - start_time) * 1000)
 
-            # Handle different response formats (Falcon vs Llama)
-            if isinstance(response, list):
-                # Falcon-style response: Retrieve generated text from the list
-                generated_text = response[0].get('generated_text', '') if response else ''
-            elif isinstance(response, dict):
-                # Llama-style response: Retrieve generated text from the dictionary
-                generated_text = response.get('generated_text', '')
-            else:
-                raise ValueError(f"Unexpected response format: {type(response)}")
+            generated_text = self.parse_response(response)
             
             # Process the generated text to extract the answer
             if "The final answer is:" in generated_text:
