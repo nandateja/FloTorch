@@ -28,8 +28,9 @@ const downloadResults = () => {
       delete item["guardrail_input_assessment"];
       delete item["guardrail_context_assessment"];
       delete item["guardrail_output_assessment"];
+      const { id, ...rest } = item;
       return {
-        ...item,
+        ...rest,
         ...assessments,
       };
     } else {
@@ -37,7 +38,7 @@ const downloadResults = () => {
         id: item.id,
         status: item.experiment_status,
         inferencing_model: item.config.retrieval_model,
-        cost: item.cost,
+        estimated_cost: item.cost,
         faithfulness: item.eval_metrics?.M?.faithfulness_score ||item.eval_metrics?.faithfulness_score || "-",
         context_precision:
         eval_metrics?.M?.context_precision_score || eval_metrics?.context_precision_score || "-",
@@ -54,7 +55,7 @@ const downloadResults = () => {
           item.config.eval_retrieval_model || "-",
         directional_cost: item.config.directional_pricing || "-",
         indexing_algorithm: item.config.indexing_algorithm || "-",
-        chunking_strategy: item.config.chunking_strategy || "-",
+        chunking: item.config.chunking_strategy || "-",
         inferencing_model_temperature: item.config.temp_retrieval_llm || "-",
         reranking_model: item.config.reranking_model_id || "-",
         guardrail: item.config?.guardrail_name || "-",
@@ -63,11 +64,13 @@ const downloadResults = () => {
         n_shots_prompts: item.config.n_shot_prompts || "-",
         expert_evaluation_scores: item.scores || "-",
       }
-      return {
-        ...results,
-      };
+
+      return results;
     }
   });
+  if (!props.questionMetrics) {
+    stringifyData.sort((a, b) => a.id.localeCompare(b.id));
+  }
   const csv = jsonToCsv(stringifyData);
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);

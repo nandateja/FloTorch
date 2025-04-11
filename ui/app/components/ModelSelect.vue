@@ -3,6 +3,7 @@
 
 const props = defineProps<{
   model: "embedding" | "retrieval";
+  region?: string;
 }>();
 
 const meta = useProjectCreateMeta()
@@ -12,7 +13,7 @@ const items = computed(() => {
     return meta.indexingStrategy.embeddingService
   }
   if (props.model === "retrieval") {
-    return meta.retrievalStrategy.llmService
+    return props.region === 'us-west-2'? meta.retrievalStrategy.llmService.filter((item => !item.label.includes('Scout'))) : meta.retrievalStrategy.llmService;
   }
   return [];
 });
@@ -22,5 +23,5 @@ const items = computed(() => {
 
 
 <template>
-  <USelectMenu :items="items" multiple class="w-full primary-dropdown mt-1" />
+  <USelectMenu :items="items" multiple class="w-full primary-dropdown mt-1"/>
 </template>
