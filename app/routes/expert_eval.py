@@ -145,6 +145,7 @@ async def query_experiments(
 
         # Inferencer Initialization
         inferencer = InferencerProviderFactory.create_inferencer_provider(
+            False, "", "",
             inference_service,
             inference_model,
             aws_region,
