@@ -51,7 +51,7 @@ async def post_execution(
             config=payload,
             gt_data=payload["prestep"]["gt_data"],
             kb_data=payload["prestep"]["kb_data"] if not payload.get("gateway_enabled", False) else None,
-            gateway_kb_data=payload["prestep"]["kb_data"] if payload.get("gateway_enabled", False) else None,
+            gateway_kb_data=payload["prestep"]["kb_data"] if payload.get("gateway_enabled", False) and payload.get("prestep").get("bedrock_knowledge_base") else None,
             region=payload["prestep"]["region"],
             status="not_started",
             name=payload["name"]
