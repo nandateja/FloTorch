@@ -263,7 +263,7 @@ def generate_all_combinations(data):
 
     is_gateway_enabled = parsed_data.get('gateway_enabled', False)
 
-    if is_gateway_enabled:
+    if is_gateway_enabled and parsed_data.get("prestep").get("bedrock_knowledge_base"):
         kb_data = parsed_data["prestep"]['kb_data']
         kb_ids = kb_data.get("kb_id", [])
         gateway_kb_ids = kb_data.get("flotorch_kb_id", [])
