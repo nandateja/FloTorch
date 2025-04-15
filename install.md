@@ -114,7 +114,7 @@ Before starting the installation, please subscribe to FloTorch:
 4. Select your preferred fulfillment option and Software Version
 
 
-Post subscribing, please click this link: [Install FloTorch (US East 1)](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create?stackName=flotorch-stack&templateURL=https://flotorch-public.s3.us-east-1.amazonaws.com/2.1.0/templates/master-template.yaml)
+Post subscribing, please click this link: [Install FloTorch (US East 1)](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create?stackName=flotorch-stack&templateURL=https://flotorch-public.s3.us-east-1.amazonaws.com/latest/templates/master-template.yaml)
 
 ### Approach #2: Command Line Installation
 
