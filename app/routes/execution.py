@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query
 from typing import Optional
 
 from baseclasses.base_classes import Execution
@@ -73,6 +73,7 @@ async def post_execution(
 @router.get("/execution")
 async def list_executions(
         status: Optional[str] = None,
+        workspace_id: Optional[str] = Query(None, alias="workspace_id"),
         execution_db=Depends(get_execution_db)
 ):
     """
@@ -84,11 +85,27 @@ async def list_executions(
         List of executions.
     """
     try:
+        filter_expression = []
+        expression_values = {}
+        expression_attribute_names = {}
+
         if status:
+            filter_expression.append("#status = :status")
+            expression_values[":status"] = status
+            expression_attribute_names["#status"] = "status"
+
+        if workspace_id:
+            filter_expression.append("#config.#workspace_id = :workspace_id")
+            expression_values[":workspace_id"] = int(workspace_id)
+            expression_attribute_names["#config"] = "config"
+            expression_attribute_names["#workspace_id"] = "workspace_id"
+
+        if filter_expression:
+            filter_expr = " AND ".join(filter_expression)
             response = execution_db.scan(
-                filter_expression="#status = :status",
-                expression_values={":status": status},
-                expression_attribute_names={"#status": "status"}
+                filter_expression=filter_expr,
+                expression_values=expression_values,
+                expression_attribute_names=expression_attribute_names
             )
         else:
             response = execution_db.scan()
